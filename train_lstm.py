@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
 import tensorflow as tf
 
@@ -126,37 +127,34 @@ print("\nClassification Report\n")
 print(classification_report(y_test,y_pred,target_names=["Low","Medium","High"]))
 
 # vẽ hình
-fig, axes = plt.subplots(1,2,figsize=(14,6))
-metrics = ["Accuracy","Precision","Recall","F1"]
-values = [acc,precision,recall,f1]
-colors = ["#483D8B","#2E8B57","#3CB371","#7CB342"]
-bars = axes[0].bar(metrics,values,color=colors)
-axes[0].set_ylim(0,1)
-axes[0].set_title("Model Evaluation")
-for bar in bars:
-    h = bar.get_height()
-    axes[0].text(
-        bar.get_x()+bar.get_width()/2,
-        h+0.02,
-        f"{h*100:.2f}%",
-        ha="center",
-        fontweight="bold"
+fig, axes = plt.subplots(1, 2, figsize=(15, 6))
+
+metrics_data = pd.DataFrame({
+    'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score'],
+    'Value': [acc, precision, recall, f1]
+})
+
+sns.barplot(x='Metric', y='Value', data=metrics_data, ax=axes[0], palette='viridis')
+axes[0].set_ylim(0, 1.15)
+axes[0].set_title('Đánh Giá Mô Hình LSTM Bằng 4 Độ Đo', fontsize=14, fontweight='bold')
+axes[0].set_ylabel('Giá Trị (0.0 - 1.0)')
+
+for p in axes[0].patches:
+    axes[0].annotate(
+        f"{p.get_height() * 100:.2f}%",
+        (p.get_x() + p.get_width() / 2., p.get_height()),
+        ha='center', va='center', xytext=(0, 8), textcoords='offset points', fontweight='bold'
     )
-cm = confusion_matrix(y_test,y_pred)
+
+cm = confusion_matrix(y_test, y_pred)
 sns.heatmap(
-    cm,
-    annot=True,
-    fmt="d",
-    cmap="Blues",
-    xticklabels=["Low","Medium","High"],
-    yticklabels=["Low","Medium","High"],
-    ax=axes[1]
+    cm, annot=True, fmt='d', cmap='Blues', ax=axes[1],
+    xticklabels=['Low (0)', 'Medium (1)', 'High (2)'],
+    yticklabels=['Low (0)', 'Medium (1)', 'High (2)']
 )
-axes[1].set_title("Confusion Matrix")
-axes[1].set_xlabel("Predicted")
-axes[1].set_ylabel("Actual")
+axes[1].set_title('Ma Trận Nhầm Lẫn - LSTM (Confusion Matrix)', fontsize=14, fontweight='bold')
+axes[1].set_xlabel('Giá Trị Dự Đoán (Predicted)')
+axes[1].set_ylabel('Giá Trị Thực Tế (Actual)')
+
 plt.tight_layout()
-plt.savefig(
-    "evaluation_results_lstm.png",
-    dpi=300
-)
+plt.savefig('evaluation_results_lstm.png', dpi=300)
