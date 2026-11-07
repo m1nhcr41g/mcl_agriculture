@@ -21,13 +21,22 @@ def create_advanced_features(data):
 
 df_fe = create_advanced_features(df)
 
-#Tách X và y
-X = df_fe.drop(columns=["Target"]).values
-y = df_fe["Target"].values
+#chia dữ liệu tĩnh ban đầu 2D theo tỷ lệ 80-20
+train_size_raw = int(len(df_fe) * 0.8)
+train_df = df_fe.iloc[:train_size_raw]
+test_df = df_fe.iloc[train_size_raw:]
+
+# Tách X và y cho từng tập riêng biệt
+X_train_raw = train_df.drop(columns=["Target"]).values
+y_train_raw = train_df["Target"].values
+
+X_test_raw = test_df.drop(columns=["Target"]).values
+y_test_raw = test_df["Target"].values
 
 #Chuẩn hóa dữ liệu
 scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
+X_train_scaled = scaler.fit_transform(X_train_raw)
+X_test_scaled = scaler.transform(X_test_raw)
 joblib.dump(
     scaler,
     "scaler_lstm.pkl"
@@ -36,34 +45,16 @@ joblib.dump(
 #Sliding Window
 TIME_STEPS = 3
 def create_sequences(X_data, y_data, time_steps):
-    
     X_seq = []
     y_seq = []
-
-    for i in range(len(X_data) - time_steps):
-
+    for i in range(len(X_data) - time_steps+1):
         X_seq.append(X_data[i:i + time_steps])
-
-        y_seq.append(y_data[i + time_steps])
-
+        y_seq.append(y_data[i + time_steps-1])
     return np.array(X_seq), np.array(y_seq)
 
-
-X_seq, y_seq = create_sequences(
-    X_scaled,
-    y,
-    TIME_STEPS
-)
-
-#Train/Test Split theo thứ tự
-
-train_size = int(len(X_seq) * 0.8)
-
-X_train = X_seq[:train_size]
-X_test = X_seq[train_size:]
-
-y_train = y_seq[:train_size]
-y_test = y_seq[train_size:]
+# 6. TẠO SLIDING WINDOW 3D ĐỘC LẬP CHO TỪNG TẬP
+X_train, y_train = create_sequences(X_train_scaled, y_train_raw, TIME_STEPS)
+X_test, y_test = create_sequences(X_test_scaled, y_test_raw, TIME_STEPS)
 
 #Lưu dữ liệu
 np.savez(
