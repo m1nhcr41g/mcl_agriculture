@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-df = pd.read_csv('data_cleaned_full.csv')
+df = pd.read_csv('data/data_cleaned_full.csv')
 def create_advanced_features(data):
     df_fe = data.copy()
     df_fe['ET_Index'] = (
@@ -28,7 +28,7 @@ X_train_scaled = scaler.fit_transform(x_train)
 X_test_scaled = scaler.transform(x_test)
 
 np.savez(
-    'data_scaled_fe_for_lstm.npz', 
+    'data/data_scaled_fe_for_lstm.npz', 
     x_train=X_train_scaled, 
     x_test=X_test_scaled, 
     y_train=y_train.values, 

@@ -5,8 +5,8 @@ import seaborn as sns
 import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report)
-train_df = pd.read_csv('data_train_fe.csv')
-test_df = pd.read_csv('data_test_fe.csv')
+train_df = pd.read_csv('data/data_train_fe.csv')
+test_df = pd.read_csv('data/data_test_fe.csv')
 X_train = train_df.drop(columns=['Target'])
 y_train = train_df['Target']
 X_test = test_df.drop(columns=['Target'])
@@ -47,5 +47,5 @@ axes[1].set_title('Ma Trận Nhầm Lẫn (Confusion Matrix)', fontsize=14, font
 axes[1].set_xlabel('Giá Trị Dự Đoán (Predicted)')
 axes[1].set_ylabel('Giá Trị Thực Tế (Actual)')
 plt.tight_layout()
-plt.savefig('evaluation_results.png', dpi=300)
-joblib.dump(rf_model, 'model_random_forest.pkl')
+plt.savefig('reports/evaluation_results.png', dpi=300)
+joblib.dump(rf_model, 'models/model_random_forest.pkl')
